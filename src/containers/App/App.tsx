@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import JokeItem from "../../components/Joke/JokeItem";
 import MovieForm from "../../components/MovieForm/MovieForm";
 import MovieList from "../../components/MovieList/MovieList";
@@ -44,6 +44,10 @@ function App() {
       joke: joke.type === "single" ? joke.joke : "",
     }));
   };
+
+  useEffect(() => {
+    getJoke().catch((e) => console.error(e));
+  }, []);
 
   return (
     <React.Fragment>

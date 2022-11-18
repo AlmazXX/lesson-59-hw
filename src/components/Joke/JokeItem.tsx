@@ -7,13 +7,12 @@ interface Props {
 }
 
 const JokeItem: React.FC<Props> = ({ joke, onJokeButton }) => {
-  useEffect(() => {
-  }, [joke]);
-  
   let jokeSet = <p>Click the Joke for bad joke</p>;
 
   if (joke.type === "single") {
-    jokeSet = <p className="bg-primary rounded-3 p-3 text-white">{joke.joke}</p>;
+    jokeSet = (
+      <p className="bg-primary rounded-3 p-3 text-white">{joke.joke}</p>
+    );
   }
 
   if (joke.type === "twopart") {

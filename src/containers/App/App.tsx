@@ -1,73 +1,88 @@
-import React, { useEffect, useState } from "react";
+import { Component } from "react";
 import JokeItem from "../../components/Joke/JokeItem";
 import MovieForm from "../../components/MovieForm/MovieForm";
 import MovieList from "../../components/MovieList/MovieList";
-import { Movie, Joke } from "../../types";
+import { Joke, Movie } from "../../types";
 
 const url = "https://v2.jokeapi.dev/joke/Programming";
 
-function App() {
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [joke, setJoke] = useState<Joke>({
-    type: "",
-    setup: "",
-    delivery: "",
-    joke: "",
-    id: 0,
-  });
-
-  const addMovie = (newMovie: Movie) => {
-    setMovies((prev) => [...prev, newMovie]);
+interface State {
+  movies: Movie[];
+  joke: Joke;
+}
+class App extends Component<{}, State> {
+  state = {
+    movies: [],
+    joke: {
+      type: "",
+      setup: "",
+      delivery: "",
+      joke: "",
+      id: 0,
+    },
   };
 
-  const changeMovie = (id: string, newName: string) => {
-    setMovies((prev) =>
-      prev.map((movie) =>
-        movie.id === id ? { ...movie, name: newName } : movie
-      )
-    );
+  addMovie = (newMovie: Movie) => {
+    this.setState((prev) => ({ ...prev, movies: [...prev.movies, newMovie] }));
   };
 
-  const deleteMovie = (id: string) => {
-    setMovies((prev) => prev.filter((movie) => movie.id !== id));
-  };
-
-  const getJoke = async () => {
-    const responce = await fetch(url);
-    const joke = responce.ok ? await responce.json() : responce.status;
-    setJoke((prev) => ({
+  changeMovie = (id: string, newName: string) => {
+    this.setState((prev) => ({
       ...prev,
-      type: joke.type,
-      id: joke.id,
-      setup: joke.type === "single" ? "" : joke.setup,
-      delivery: joke.type === "single" ? "" : joke.delivery,
-      joke: joke.type === "single" ? joke.joke : "",
+      movies: prev.movies.map((movie) =>
+        movie.id === id ? { ...movie, name: newName } : movie
+      ),
     }));
   };
 
-  useEffect(() => {
-    getJoke().catch((e) => console.error(e));
-  }, []);
+  deleteMovie = (id: string) => {
+    this.setState((prev) => ({
+      ...prev,
+      movies: prev.movies.filter((movie) => movie.id !== id),
+    }));
+  };
 
-  return (
-    <React.Fragment>
-      <main className="container-fluid">
-        <div className="row mt-2">
-          <div className="col d-flex flex-column" style={{ gap: "16px" }}>
-            <MovieForm onSubmit={addMovie} />
-            <MovieList
-              movies={movies}
-              onChangeMovie={changeMovie}
-              onDeleteMovie={deleteMovie}
-            />
+  getJoke = async () => {
+    const responce = await fetch(url);
+    const joke = responce.ok ? await responce.json() : null;
+    joke && this.setState((prev) => ({
+      ...prev,
+      joke: {
+        ...prev.joke,
+        type: joke.type,
+        id: joke.id,
+        setup: joke.type === "single" ? "" : joke.setup,
+        delivery: joke.type === "single" ? "" : joke.delivery,
+        joke: joke.type === "single" ? joke.joke : "",
+      },
+    }));
+  };
+
+  componentDidMount() {
+    this.getJoke().catch((e) => console.error(e));
+  }
+
+  render() {
+    return (
+      <>
+        <main className="container-fluid">
+          <div className="row mt-2">
+            <div className="col d-flex flex-column" style={{ gap: "16px" }}>
+              <MovieForm onSubmit={this.addMovie} />
+              <MovieList
+                movies={this.state.movies}
+                onChangeMovie={this.changeMovie}
+                onDeleteMovie={this.deleteMovie}
+              />
+            </div>
+            <div className="col">
+              <JokeItem joke={this.state.joke} onJokeButton={this.getJoke} />
+            </div>
           </div>
-          <div className="col">
-            <JokeItem joke={joke} onJokeButton={getJoke} />
-          </div>
-        </div>
-      </main>
-    </React.Fragment>
-  );
+        </main>
+      </>
+    );
+  }
 }
 
 export default App;

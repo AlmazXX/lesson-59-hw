@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Joke } from "../../types";
 
 interface Props {
